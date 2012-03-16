@@ -1,0 +1,84 @@
+#!/usr/bin/env python
+'''
+	use this script to group files in a "tagged" folder.
+'''
+
+import os
+import sys
+import re
+import shutil
+
+def system_mv(src,dst):
+	# python mv function is too slow, use system mv.
+    os.system("mv '%s' '%s'"%(src,dst))
+
+try:
+	os.chdir(sys.argv[1]);
+except:
+	print "chdir failed"
+	exit()
+
+# display current workikng path    	
+print "working dir=[%s]"%os.path.abspath(os.curdir)
+    	
+
+# regex to filter file extension 
+rex_ext_video=re.compile(r"avi$|wmv$",re.IGNORECASE)
+rex_ext_pic=re.compile(r"jpg$|gif$|png$",re.IGNORECASE)
+
+# regex strip [^\w\d]
+rex_strip=re.compile(r"[^\w\d]",re.IGNORECASE| re.MULTILINE)
+
+# regex to generate tag: format [a-z]+[\d]+
+rex_tag=re.compile(r"[a-zA-Z]+\d+",re.IGNORECASE)
+
+
+#parse files and grouped with tag
+tags=dict()
+for fname in os.listdir(os.curdir):
+	#match video or pic
+    if rex_ext_video.search(fname) or rex_ext_pic.search(fname):
+		#create tag
+        tag=rex_tag.search( rex_strip.sub("",fname).upper() )
+        if tag:
+            dname=tag.group()
+            print "dname:[%-024s] <= fname:[%-024s]"%(dname,fname)
+            if tags.has_key(dname):
+                tags[dname].append(fname);
+            else:
+                tags[dname] = list([fname])
+        else:
+            print "no tag for %s"%(fname)
+    else:
+    	#print "no match extension file"
+    	pass
+    
+# remove tag without grouped files.
+for dname,fnames in tags.items():
+    if len(fnames) <= 1 :
+    	del tags[dname]
+
+# show tags
+for dname,fnames in tags.items():
+    print "[%-016s] <= ["%dname,
+    for fname in fnames:
+        print "%-016s,"%fname,
+    print "]"
+
+if len(tags) == 0:
+    print "Nothing to process. Exit."
+    exit()
+  
+#prompt to continue
+run=raw_input("process? (y/n): ")
+if run != "y":
+    exit()
+
+for dname,fnames in tags.items():
+    if not os.path.exists(dname):
+        os.mkdir(dname)
+    if os.path.isdir(dname):
+        #movie files to dir
+        for fname in fnames:
+            system_mv(fname,dname)
+
