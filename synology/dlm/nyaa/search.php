@@ -1,6 +1,6 @@
 <?php
 class TorrentSearchNyaa {
-	private $qurl = 'http://sukebei.nyaa.eu/?page=rss&term=%s';
+	private $qurl = 'http://sukebei.nyaa.se/?page=rss&term=%s';
 	public function __construct() {
 	}
 	
@@ -41,7 +41,7 @@ class TorrentSearchNyaa {
 					"<description><!\[CDATA\[".
 						"(\d+)\ seeder.*".//seeder
 						"(\d+)\ leecher.*".//leecher
-						"(\d+)\ downloads.*".//downloaded times
+						"(\d+)\ download.*".//downloaded times
 						"-\ (.*)\]\]></description>.*".//size
 					"<pubDate>(.*)</pubDate>.*".//date
 					"</item>.*";
